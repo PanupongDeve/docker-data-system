@@ -1,0 +1,78 @@
+version: "3"
+services:
+  redis-server:
+    image: "bitnami/redis:latest"
+    user: root
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "-h","127.0.0.1", "-a", "1q2w3e4r5t6y", "--raw", "incr", "ping"]
+      interval: 20s
+      retries: 3
+      timeout: 10s
+    environment:
+      - REDIS_PASSWORD=1q2w3e4r5t6y
+    ports:
+      - "6379:6379"
+    volumes:
+      - "./redis_data:/bitnami/redis/data"
+  mysql-server:
+    image: mysql:8.0
+    user: root
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "127.0.0.1"]
+      interval: 20s
+      retries: 3
+      timeout: 10s
+    environment:
+      MYSQL_DATABASE: 'default'
+      MYSQL_USER: 'admin'
+      MYSQL_PASSWORD: '1q2w3e4r'
+      MYSQL_ROOT_PASSWORD: '1q2w3e4r'
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./mysql_data:/var/lib/mysql"
+  mongo-server:
+    image: mongo:latest
+    user: root
+    restart: always
+    healthcheck:
+      test: ["CMD", "mongosh", "127.0.0.1/default","--eval", "\"db.getMongo()\"", "--quiet"]
+      interval: 20s
+      retries: 3
+      timeout: 10s
+    ports:
+        - 27017:27017
+    environment:
+        - MONGO_INITDB_ROOT_USERNAME=root
+        - MONGO_INITDB_ROOT_PASSWORD=1q2w3e4r
+        - MONGO_INITDB_DATABASE=default
+        - MONGO_INITDB_USERNAME=admin
+        - MONGO_INITDB_PASSWORD=1q2w3e4r
+    volumes:
+      - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
+      - ./mongo_data:/data/db
+  neo4j-server:
+    image: bitnami/neo4j:latest
+    user: root
+    restart: always
+    healthcheck:
+      test: ["CMD", "neo4j", "status"]
+      interval: 20s
+      retries: 3
+      timeout: 10s
+    ports:
+      - '7474:7474'
+      - '7473:7473'
+      - '7687:7687'
+    # volumes:
+    #   - './neo4j_data/bitnami/neo4j:/bitnami/neo4j'
+    #   - './neo4j_data/opt/bitnami/neo4j:/opt/bitnami/neo4j'
+    environment:
+      - NEO4J_PASSWORD=1q2w3e4r
+
+  
+
+
+
